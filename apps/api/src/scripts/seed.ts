@@ -8,6 +8,7 @@ import argon2 from 'argon2';
 import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { logger } from '../lib/logger.js';
+import { SessionModel } from '../modules/auth/model.js';
 import { DoctorModel } from '../modules/doctors/model.js';
 import { PatientModel } from '../modules/patients/model.js';
 import { UserModel } from '../modules/users/model.js';
@@ -206,7 +207,9 @@ async function seed() {
       await mongoose.connection.dropDatabase();
       logger.info('Dropped database');
     }
-    await Promise.all([UserModel, DoctorModel, PatientModel].map((model) => model.syncIndexes()));
+    await Promise.all(
+      [UserModel, SessionModel, DoctorModel, PatientModel].map((model) => model.syncIndexes()),
+    );
     await ensureAdmin();
 
     if (await DoctorModel.exists({})) {
