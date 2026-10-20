@@ -1,11 +1,12 @@
 export const USER_ROLES = ['admin'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+// Ordered by escalating severity, which is also how the UI lists them.
 export const PATIENT_CONDITIONS = [
   'stable',
   'recovering',
-  'critical',
   'under_observation',
+  'critical',
 ] as const;
 export type PatientCondition = (typeof PATIENT_CONDITIONS)[number];
 
