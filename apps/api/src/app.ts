@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
@@ -6,6 +7,8 @@ import { pinoHttp } from 'pino-http';
 import { env } from './config/env.js';
 import { logger } from './lib/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
+import { requireAuth, requireRole } from './modules/auth/middleware.js';
+import { authRouter } from './modules/auth/routes.js';
 
 export function createApp() {
   const app = express();
@@ -31,6 +34,7 @@ export function createApp() {
   app.use(helmet());
   app.use(cors({ origin: env.WEB_ORIGIN, credentials: true }));
   app.use(express.json({ limit: '100kb' }));
+  app.use(cookieParser());
 
   app.get('/health', async (_req, res) => {
     const db = mongoose.connection.db;
@@ -41,6 +45,13 @@ export function createApp() {
     await db.command({ ping: 1 });
     res.json({ status: 'ok' });
   });
+
+  const api = express.Router();
+  api.use('/auth', authRouter);
+  // Everything past this line needs a valid session, unknown paths included: an
+  // anonymous caller gets 401 rather than learning which routes exist.
+  api.use(requireAuth, requireRole('admin'));
+  app.use('/api/v1', api);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
