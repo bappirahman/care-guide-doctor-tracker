@@ -8,6 +8,7 @@ import {
   Mail,
   Pencil,
   Phone,
+  Plus,
   Trash2,
   UserX,
 } from 'lucide-react';
@@ -20,6 +21,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CONDITION_META, ConditionDot } from '@/features/patients/condition';
+import { PatientFormDialog } from '@/features/patients/patient-form-dialog';
+import { PatientsTable } from '@/features/patients/patients-table';
 import { ApiError } from '@/lib/api-client';
 import { formatDate, formatNumber, pluralize } from '@/lib/format';
 import { useDoctor } from './api';
@@ -32,6 +35,7 @@ export function DoctorDetailView() {
   const doctor = useDoctor(id);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [addingPatient, setAddingPatient] = useState(false);
 
   if (doctor.isPending) return <DoctorDetailSkeleton />;
 
@@ -73,9 +77,13 @@ export function DoctorDetailView() {
               <Trash2 aria-hidden />
               Delete
             </Button>
-            <Button onClick={() => setEditing(true)}>
+            <Button variant="outline" onClick={() => setEditing(true)}>
               <Pencil aria-hidden />
               Edit
+            </Button>
+            <Button onClick={() => setAddingPatient(true)}>
+              <Plus aria-hidden />
+              Add patient
             </Button>
           </>
         }
@@ -119,7 +127,15 @@ export function DoctorDetailView() {
         </Card>
       </div>
 
+      <section className="flex flex-col gap-4" aria-labelledby="doctor-patients-heading">
+        <h2 id="doctor-patients-heading" className="text-base font-semibold">
+          Patients
+        </h2>
+        <PatientsTable doctorId={data.id} onAddPatient={() => setAddingPatient(true)} />
+      </section>
+
       <DoctorFormDialog open={editing} onOpenChange={setEditing} doctor={data} />
+      <PatientFormDialog open={addingPatient} onOpenChange={setAddingPatient} doctorId={data.id} />
       <DeleteDoctorDialog
         doctor={deleting ? data : null}
         onOpenChange={setDeleting}
