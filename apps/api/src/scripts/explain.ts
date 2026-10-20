@@ -1,10 +1,11 @@
-import { doctorListQuerySchema } from '@doctor-tracker/shared';
+import { doctorListQuerySchema, patientListQuerySchema } from '@doctor-tracker/shared';
 import mongoose, { type Types } from 'mongoose';
 import { env } from '../config/env.js';
 import { logger } from '../lib/logger.js';
 import { DoctorModel } from '../modules/doctors/model.js';
 import { doctorListQuery, patientCountPipeline } from '../modules/doctors/service.js';
 import { PatientModel } from '../modules/patients/model.js';
+import { patientListQuery } from '../modules/patients/service.js';
 
 /**
  * Runs the API's real list/search/filter queries with explain('executionStats')
@@ -32,6 +33,23 @@ async function explainDoctorList(raw: Record<string, unknown>) {
   if (collation) query.collation(collation);
   const output: unknown = await query.explain('executionStats');
   return output;
+}
+
+async function explainPatientList(raw: Record<string, unknown>) {
+  const { filter, sort, collation } = patientListQuery(patientListQuerySchema.parse(raw));
+  const query = PatientModel.find(filter).sort(sort).limit(PAGE_SIZE);
+  if (collation) query.collation(collation);
+  const output: unknown = await query.explain('executionStats');
+  return output;
+}
+
+async function busiestDoctorId() {
+  const [row] = await PatientModel.aggregate<{ _id: Types.ObjectId }>([
+    { $match: { doctorId: { $ne: null } } },
+    { $sortByCount: '$doctorId' },
+    { $limit: 1 },
+  ]);
+  return row?._id.toString();
 }
 
 const checks: Check[] = [
@@ -76,6 +94,36 @@ const checks: Check[] = [
       );
       return output;
     },
+  },
+  { name: 'patients: default list', explain: () => explainPatientList({}) },
+  { name: 'patients: oldest first', explain: () => explainPatientList({ sort: 'admittedAt' }) },
+  { name: 'patients: name A-Z', explain: () => explainPatientList({ sort: 'name' }) },
+  {
+    name: 'patients: search "rah"',
+    explain: () => explainPatientList({ search: 'rah' }),
+    sortAllowed: SEARCH_SORT,
+  },
+  {
+    name: 'patients: critical',
+    explain: () => explainPatientList({ condition: 'critical' }),
+  },
+  {
+    name: 'patients: critical + recovering, last 90 days',
+    explain: () =>
+      explainPatientList({
+        condition: ['critical', 'recovering'],
+        from: new Date(Date.now() - 90 * 86_400_000).toISOString(),
+      }),
+  },
+  {
+    name: 'patients: one doctor',
+    explain: async () => explainPatientList({ doctorId: await busiestDoctorId() }),
+  },
+  { name: 'patients: unassigned', explain: () => explainPatientList({ doctorId: 'unassigned' }) },
+  {
+    name: 'patients: admitted in the last 30 days',
+    explain: () =>
+      explainPatientList({ from: new Date(Date.now() - 30 * 86_400_000).toISOString() }),
   },
 ];
 

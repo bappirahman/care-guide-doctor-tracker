@@ -10,6 +10,7 @@ import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { requireAuth, requireRole } from './modules/auth/middleware.js';
 import { authRouter } from './modules/auth/routes.js';
 import { doctorRouter } from './modules/doctors/routes.js';
+import { patientRouter } from './modules/patients/routes.js';
 
 export function createApp() {
   const app = express();
@@ -53,6 +54,7 @@ export function createApp() {
   // anonymous caller gets 401 rather than learning which routes exist.
   api.use(requireAuth, requireRole('admin'));
   api.use('/doctors', doctorRouter);
+  api.use('/patients', patientRouter);
   app.use('/api/v1', api);
 
   app.use(notFoundHandler);

@@ -22,15 +22,16 @@ const patientSchema = new Schema(
 
 patientSchema.plugin(searchTokensPlugin, { text: ['name'], phones: ['phone'] });
 
+// Every list sort ends in `_id` (stable paging), so every list index does too.
+
 // Doctor detail page, `/patients?doctorId=` (including unassigned), per-doctor patient
-// counts on the doctors list, and the delete-doctor guard.
-patientSchema.index({ doctorId: 1, admittedAt: -1 });
+// counts on the doctors list (covered: only `doctorId` is read), and the delete-doctor guard.
+patientSchema.index({ doctorId: 1, admittedAt: -1, _id: -1 });
 // Condition filter with the admitted-date range and default sort.
-patientSchema.index({ condition: 1, admittedAt: -1 });
-// Default `/patients` list and admitted range. It also covers the dashboard aggregation,
-// which only reads these three fields, so that scan never has to fetch documents.
-patientSchema.index({ admittedAt: -1, condition: 1, doctorId: 1 });
+patientSchema.index({ condition: 1, admittedAt: -1, _id: -1 });
+// Default `/patients` list (newest admission first) and the admitted-date range.
+patientSchema.index({ admittedAt: -1, _id: -1 });
 // "Name A–Z" sort.
-patientSchema.index({ name: 1 }, { collation: NAME_COLLATION });
+patientSchema.index({ name: 1, _id: 1 }, { collation: NAME_COLLATION });
 
 export const PatientModel = model('Patient', patientSchema);
