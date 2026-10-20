@@ -91,10 +91,12 @@
   --sidebar-ring: oklch(0.6 0.118 184.704);
 
   /* Patient condition: the only colors besides the accent. Badges, filters and charts
-     all read these, so "critical" is the same red everywhere. */
+     all read these, so "critical" is the same red everywhere. Validated as a set for
+     color-vision deficiency (dataviz validate_palette.js, all pairs): the amber is
+     yellow-shifted so it stays distinct from red, and every use carries a text label. */
   --condition-stable: oklch(0.596 0.145 163.225);
   --condition-recovering: oklch(0.546 0.245 262.881);
-  --condition-under-observation: oklch(0.666 0.179 58.318);
+  --condition-under-observation: oklch(0.743 0.157 75.275);
   --condition-critical: oklch(0.577 0.245 27.325);
 }
 
@@ -133,10 +135,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.704 0.14 182.503);
 
-  --condition-stable: oklch(0.765 0.177 163.223);
-  --condition-recovering: oklch(0.707 0.165 254.624);
-  --condition-under-observation: oklch(0.828 0.189 84.429);
-  --condition-critical: oklch(0.704 0.191 22.216);
+  /* Kept inside the dark chart band (L 0.48–0.67) and re-validated on the dark surface;
+     lighter steps glare on zinc-950 and lose hue separation. */
+  --condition-stable: oklch(0.603 0.134 160.923);
+  --condition-recovering: oklch(0.623 0.188 259.815);
+  --condition-under-observation: oklch(0.665 0.14 75.043);
+  --condition-critical: oklch(0.583 0.239 28.476);
 }
 
 @layer base {
