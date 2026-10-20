@@ -38,6 +38,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    restart: unless-stopped
 
   # Runs once per `up` and exits. It skips if doctors already exist, so restarts keep data.
   seed:
