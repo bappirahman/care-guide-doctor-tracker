@@ -49,6 +49,12 @@ The seed is idempotent. It skips if doctors already exist, so restarting the sta
 docker compose run --rm seed node dist/scripts/seed.js --reset
 ```
 
+To check the query plans against the running database (see [Indexing](#2-indexing-and-aggregation-verified-with-explain)):
+
+```bash
+docker compose run --rm seed node dist/scripts/explain.js
+```
+
 ### Locally, without Docker for the apps
 
 You need Node 24+, pnpm 11 (`corepack enable` on Node 24 picks the pinned version; Node 25+ dropped corepack, so use `npm i -g pnpm@11` there), and a MongoDB. The quickest Mongo is the one from compose:
