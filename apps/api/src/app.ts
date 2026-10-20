@@ -11,6 +11,7 @@ import { requireAuth, requireRole } from './modules/auth/middleware.js';
 import { authRouter } from './modules/auth/routes.js';
 import { doctorRouter } from './modules/doctors/routes.js';
 import { patientRouter } from './modules/patients/routes.js';
+import { statsRouter } from './modules/stats/routes.js';
 
 export function createApp() {
   const app = express();
@@ -55,6 +56,7 @@ export function createApp() {
   api.use(requireAuth, requireRole('admin'));
   api.use('/doctors', doctorRouter);
   api.use('/patients', patientRouter);
+  api.use('/stats', statsRouter);
   app.use('/api/v1', api);
 
   app.use(notFoundHandler);

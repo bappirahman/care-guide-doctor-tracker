@@ -33,5 +33,8 @@ patientSchema.index({ condition: 1, admittedAt: -1, _id: -1 });
 patientSchema.index({ admittedAt: -1, _id: -1 });
 // "Name A–Z" sort.
 patientSchema.index({ name: 1, _id: 1 }, { collation: NAME_COLLATION });
+// Dashboard: the overview aggregation matches on admittedAt and reads only these three
+// fields, so this index answers it alone (covered, no documents fetched).
+patientSchema.index({ admittedAt: 1, condition: 1, doctorId: 1 });
 
 export const PatientModel = model('Patient', patientSchema);
