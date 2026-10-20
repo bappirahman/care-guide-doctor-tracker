@@ -1,0 +1,87 @@
+name: doctor-tracker
+
+# Shared by the api and the one-off seed job. Every value can be overridden from a
+# root .env file (see .env.example); the defaults make `docker compose up --build` work as is.
+x-api-env: &api-env
+  NODE_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  MONGO_URI: mongodb://mongo:27017/doctor-tracker
+  WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-local-compose-only-secret-change-me-in-any-real-deploy}
+  JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
+  REFRESH_TOKEN_TTL_SECONDS: ${REFRESH_TOKEN_TTL_SECONDS:-604800}
+  # Served over plain http://localhost, where Safari drops Secure cookies.
+  COOKIE_SECURE: ${COOKIE_SECURE:-false}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/v1/auth/google/callback}
+  ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+  SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Demo Admin}
+  SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+  SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-DemoAdmin#2026}
+
+x-api-build: &api-build
+  context: .
+  dockerfile: apps/api/Dockerfile
+
+services:
+  mongo:
+    image: mongo:8
+    volumes:
+      - mongo-data:/data/db
+    # Bound to localhost only, for mongosh and the explain script.
+    ports:
+      - 127.0.0.1:${MONGO_PORT:-27017}:27017
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # Runs once per `up` and exits. It skips if doctors already exist, so restarts keep data.
+  seed:
+    image: doctor-tracker-api
+    build: *api-build
+    command: ['node', 'dist/scripts/seed.js']
+    environment: *api-env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    image: doctor-tracker-api
+    build: *api-build
+    environment: *api-env
+    depends_on:
+      mongo:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - 127.0.0.1:${API_PORT:-4000}:4000
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/health']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  web:
+    image: doctor-tracker-web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_URL: http://api:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - ${WEB_PORT:-3000}:3000
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
