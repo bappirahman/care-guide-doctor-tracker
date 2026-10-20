@@ -9,12 +9,14 @@ export const emailSchema = z
   .string('Enter an email')
   .trim()
   .toLowerCase()
+  .min(1, 'Enter an email')
   .pipe(z.email('Enter a valid email'));
 
 // Digits with an optional leading +, allowing the spaces and dashes people type.
 export const phoneSchema = z
   .string('Enter a phone number')
   .trim()
+  .min(1, 'Enter a phone number')
   .regex(/^\+?[\d\s-]{7,20}$/, 'Enter a valid phone number');
 
 export const searchSchema = z.string().trim().max(100).optional();

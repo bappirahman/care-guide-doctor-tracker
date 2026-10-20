@@ -15,9 +15,14 @@ import {
 } from './common.js';
 
 export const doctorInputSchema = z.object({
-  name: z.string('Enter a name').trim().min(2, 'Name is too short').max(100),
+  name: z.string('Enter a name').trim().min(1, 'Enter a name').min(2, 'Name is too short').max(100),
   specialization: z.enum(SPECIALIZATIONS, 'Pick a specialization'),
-  hospital: z.string('Enter a hospital').trim().min(2, 'Hospital is too short').max(120),
+  hospital: z
+    .string('Enter a hospital')
+    .trim()
+    .min(1, 'Enter a hospital')
+    .min(2, 'Hospital is too short')
+    .max(120),
   phone: phoneSchema,
   email: emailSchema,
 });

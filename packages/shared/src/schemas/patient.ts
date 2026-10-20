@@ -18,7 +18,7 @@ import {
 export const UNASSIGNED = 'unassigned';
 
 const patientFields = z.object({
-  name: z.string('Enter a name').trim().min(2, 'Name is too short').max(100),
+  name: z.string('Enter a name').trim().min(1, 'Enter a name').min(2, 'Name is too short').max(100),
   age: z.coerce
     .number('Enter an age')
     .int('Age must be a whole number')
