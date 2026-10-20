@@ -12,7 +12,8 @@
     "start": "node dist/server.js",
     "seed": "tsx --env-file-if-exists=.env src/scripts/seed.ts",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "explain": "tsx --env-file-if-exists=.env src/scripts/explain.ts"
   },
   "dependencies": {
     "@doctor-tracker/shared": "workspace:*",
