@@ -3,5 +3,5 @@
   "compilerOptions": {
     "rootDir": "."
   },
-  "include": ["src", "eslint.config.js"]
+  "include": ["src", "test", "eslint.config.js", "vitest.config.ts"]
 }
