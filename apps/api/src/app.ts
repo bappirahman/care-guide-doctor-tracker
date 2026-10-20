@@ -9,6 +9,7 @@ import { logger } from './lib/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { requireAuth, requireRole } from './modules/auth/middleware.js';
 import { authRouter } from './modules/auth/routes.js';
+import { doctorRouter } from './modules/doctors/routes.js';
 
 export function createApp() {
   const app = express();
@@ -51,6 +52,7 @@ export function createApp() {
   // Everything past this line needs a valid session, unknown paths included: an
   // anonymous caller gets 401 rather than learning which routes exist.
   api.use(requireAuth, requireRole('admin'));
+  api.use('/doctors', doctorRouter);
   app.use('/api/v1', api);
 
   app.use(notFoundHandler);

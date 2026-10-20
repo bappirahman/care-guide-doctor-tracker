@@ -1,5 +1,6 @@
 import type { RequestHandler } from 'express';
-import type { ZodType } from 'zod';
+import type { ParamsDictionary, Query } from 'express-serve-static-core';
+import type { output, ZodType } from 'zod';
 import { HttpError } from '../lib/http-error.js';
 
 type RequestSchemas = {
@@ -8,13 +9,24 @@ type RequestSchemas = {
   body?: ZodType;
 };
 
+type Parsed<S, Fallback> = S extends ZodType ? output<S> : Fallback;
+
 const LOCATIONS = ['params', 'query', 'body'] as const;
 
 /**
  * Parses each request location with its schema and replaces the raw value with
- * the parsed one, so handlers receive coerced numbers, dates and defaults.
+ * the parsed one, so handlers receive coerced numbers, dates and defaults. The
+ * returned handler carries the parsed types, which Express then infers for the
+ * controller registered after it on the same route.
  */
-export function validate(schemas: RequestSchemas): RequestHandler {
+export function validate<S extends RequestSchemas>(
+  schemas: S,
+): RequestHandler<
+  Parsed<S['params'], ParamsDictionary>,
+  unknown,
+  Parsed<S['body'], unknown>,
+  Parsed<S['query'], Query>
+> {
   return (req, _res, next) => {
     const issues = [];
 
