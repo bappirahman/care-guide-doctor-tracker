@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { AppBreadcrumbs } from './app-breadcrumbs';
@@ -14,7 +15,10 @@ export function AppHeader() {
         className="mr-1 data-vertical:h-4 data-vertical:self-center"
       />
       <div className="min-w-0 flex-1">
-        <AppBreadcrumbs />
+        {/* Derived from the URL, so it streams in rather than blocking the static shell. */}
+        <Suspense>
+          <AppBreadcrumbs />
+        </Suspense>
       </div>
       <ThemeToggle />
       <UserMenu />

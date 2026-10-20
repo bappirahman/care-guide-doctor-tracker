@@ -3,6 +3,7 @@
 import { LayoutDashboard, Stethoscope, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Suspense } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -24,9 +25,6 @@ const NAV_ITEMS = [
 ] as const;
 
 export function AppSidebar() {
-  const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
-
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-14 justify-center border-b px-3 group-data-[collapsible=icon]:px-2">
@@ -36,28 +34,44 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
-                <SidebarMenuItem key={href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === href || pathname.startsWith(`${href}/`)}
-                    tooltip={label}
-                    className="data-[active=true]:text-sidebar-primary"
-                  >
-                    {/* The mobile sheet stays open across client navigations unless closed here. */}
-                    <Link href={href} onClick={() => isMobile && setOpenMobile(false)}>
-                      <Icon aria-hidden />
-                      <span>{label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            {/* The current path is request data; the links render in the static shell and
+                the active highlight streams in, instead of blocking prerendering. */}
+            <Suspense fallback={<NavMenu activePath={null} />}>
+              <ActiveNavMenu />
+            </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function ActiveNavMenu() {
+  return <NavMenu activePath={usePathname()} />;
+}
+
+function NavMenu({ activePath }: { activePath: string | null }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  return (
+    <SidebarMenu>
+      {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+        <SidebarMenuItem key={href}>
+          <SidebarMenuButton
+            asChild
+            isActive={activePath === href || Boolean(activePath?.startsWith(`${href}/`))}
+            tooltip={label}
+            className="data-[active=true]:text-sidebar-primary"
+          >
+            {/* The mobile sheet stays open across client navigations unless closed here. */}
+            <Link href={href} onClick={() => isMobile && setOpenMobile(false)}>
+              <Icon aria-hidden />
+              <span>{label}</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
   );
 }
