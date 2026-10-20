@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { GENDERS, PATIENT_CONDITIONS, type Gender, type PatientCondition } from '../constants.js';
+import {
+  GENDERS,
+  PATIENT_CONDITIONS,
+  PATIENT_SORTS,
+  type Gender,
+  type PatientCondition,
+} from '../constants.js';
 import {
   dateRangeQuerySchema,
   multiValue,
@@ -7,14 +13,17 @@ import {
   paginationQuerySchema,
   phoneSchema,
   searchSchema,
-  sortQuerySchema,
 } from './common.js';
 
 export const UNASSIGNED = 'unassigned';
 
 const patientFields = z.object({
-  name: z.string().trim().min(2, 'Name is too short').max(100),
-  age: z.coerce.number().int('Age must be a whole number').min(0).max(120),
+  name: z.string('Enter a name').trim().min(2, 'Name is too short').max(100),
+  age: z.coerce
+    .number('Enter an age')
+    .int('Age must be a whole number')
+    .min(0, 'Age cannot be negative')
+    .max(120, 'Age looks too high'),
   gender: z.enum(GENDERS, 'Pick a gender'),
   phone: phoneSchema,
   condition: z.enum(PATIENT_CONDITIONS, 'Pick a condition'),
@@ -44,9 +53,9 @@ export const patientListQuerySchema = z
     search: searchSchema,
     condition: multiValue(z.enum(PATIENT_CONDITIONS)),
     doctorId: z.union([objectIdSchema, z.literal(UNASSIGNED)]).optional(),
+    sort: z.enum(PATIENT_SORTS).default('-admittedAt'),
   })
   .extend(paginationQuerySchema.shape)
-  .extend(sortQuerySchema.shape)
   .and(dateRangeQuerySchema);
 export type PatientListQuery = z.infer<typeof patientListQuerySchema>;
 

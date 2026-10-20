@@ -35,8 +35,12 @@ export const SPECIALIZATIONS = [
 ] as const;
 export type Specialization = (typeof SPECIALIZATIONS)[number];
 
-export const SORT_OPTIONS = ['newest', 'oldest', 'name'] as const;
-export type SortOption = (typeof SORT_OPTIONS)[number];
+// `field` sorts ascending, `-field` descending. Only fields with a backing index are listed.
+export const DOCTOR_SORTS = ['-createdAt', 'createdAt', 'name', '-name'] as const;
+export type DoctorSort = (typeof DOCTOR_SORTS)[number];
+
+export const PATIENT_SORTS = ['-admittedAt', 'admittedAt', 'name', '-name'] as const;
+export type PatientSort = (typeof PATIENT_SORTS)[number];
 
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 100;

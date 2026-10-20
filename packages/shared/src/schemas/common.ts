@@ -1,15 +1,19 @@
 import { z } from 'zod';
-import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, SORT_OPTIONS } from '../constants.js';
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../constants.js';
 
 export const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, 'Must be a valid id');
 
 export const idParamsSchema = z.object({ id: objectIdSchema });
 
-export const emailSchema = z.string().trim().toLowerCase().pipe(z.email('Enter a valid email'));
+export const emailSchema = z
+  .string('Enter an email')
+  .trim()
+  .toLowerCase()
+  .pipe(z.email('Enter a valid email'));
 
 // Digits with an optional leading +, allowing the spaces and dashes people type.
 export const phoneSchema = z
-  .string()
+  .string('Enter a phone number')
   .trim()
   .regex(/^\+?[\d\s-]{7,20}$/, 'Enter a valid phone number');
 
@@ -45,10 +49,6 @@ export const dateRangeQuerySchema = z
     message: '`from` must be before `to`',
     path: ['from'],
   });
-
-export const sortQuerySchema = z.object({
-  sort: z.enum(SORT_OPTIONS).default('newest'),
-});
 
 export type PaginationMeta = {
   page: number;

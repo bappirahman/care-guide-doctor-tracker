@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { SPECIALIZATIONS, type Specialization } from '../constants.js';
+import {
+  DOCTOR_SORTS,
+  type PatientCondition,
+  SPECIALIZATIONS,
+  type Specialization,
+} from '../constants.js';
 import {
   dateRangeQuerySchema,
   emailSchema,
@@ -7,13 +12,12 @@ import {
   paginationQuerySchema,
   phoneSchema,
   searchSchema,
-  sortQuerySchema,
 } from './common.js';
 
 export const doctorInputSchema = z.object({
-  name: z.string().trim().min(2, 'Name is too short').max(100),
+  name: z.string('Enter a name').trim().min(2, 'Name is too short').max(100),
   specialization: z.enum(SPECIALIZATIONS, 'Pick a specialization'),
-  hospital: z.string().trim().min(2, 'Hospital is too short').max(120),
+  hospital: z.string('Enter a hospital').trim().min(2, 'Hospital is too short').max(120),
   phone: phoneSchema,
   email: emailSchema,
 });
@@ -29,9 +33,9 @@ export const doctorListQuerySchema = z
     search: searchSchema,
     specialization: multiValue(z.enum(SPECIALIZATIONS)),
     hospital: multiValue(z.string().trim().min(1).max(120)),
+    sort: z.enum(DOCTOR_SORTS).default('-createdAt'),
   })
   .extend(paginationQuerySchema.shape)
-  .extend(sortQuerySchema.shape)
   .and(dateRangeQuerySchema);
 export type DoctorListQuery = z.infer<typeof doctorListQuerySchema>;
 
@@ -45,6 +49,10 @@ export type Doctor = {
   patientCount: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type DoctorDetail = Doctor & {
+  conditionCounts: Record<PatientCondition, number>;
 };
 
 export type DoctorFilters = {
