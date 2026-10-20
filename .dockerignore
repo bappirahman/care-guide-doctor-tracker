@@ -8,6 +8,5 @@
 !**/.env.example
 .git
 .github
-.notes
 docs
 *.md
