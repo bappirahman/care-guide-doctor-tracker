@@ -1,0 +1,25 @@
+{
+  "name": "doctor-tracker",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "seed": "turbo run seed --filter=api",
+    "format": "prettier --write apps packages \"*.{json,md,yml,yaml}\"",
+    "format:check": "prettier --check apps packages \"*.{json,md,yml,yaml}\""
+  },
+  "devDependencies": {
+    "@doctor-tracker/config": "workspace:*",
+    "prettier": "3.9.6",
+    "turbo": "^2.11.9",
+    "typescript": "~6.0.3"
+  },
+  "prettier": "@doctor-tracker/config/prettier",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=24"
+  }
+}
