@@ -2,8 +2,8 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-/* Light-only for now. A class-based variant keeps shadcn's `dark:` utilities inert
-   instead of half-applying them when the OS is in dark mode. */
+/* Dark mode is driven by a `.dark` class on <html> (next-themes), so the OS setting is
+   one option of the toggle rather than something that half-applies on its own. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -41,6 +41,10 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-condition-stable: var(--condition-stable);
+  --color-condition-recovering: var(--condition-recovering);
+  --color-condition-under-observation: var(--condition-under-observation);
+  --color-condition-critical: var(--condition-critical);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -51,7 +55,7 @@
 }
 
 /* Zinc neutrals with a single deep-teal accent (Tailwind teal-700) for primary
-   actions, focus rings and the main chart series. */
+   actions, active navigation, focus rings and the main chart series. */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -85,6 +89,54 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.6 0.118 184.704);
+
+  /* Patient condition: the only colors besides the accent. Badges, filters and charts
+     all read these, so "critical" is the same red everywhere. */
+  --condition-stable: oklch(0.596 0.145 163.225);
+  --condition-recovering: oklch(0.546 0.245 262.881);
+  --condition-under-observation: oklch(0.666 0.179 58.318);
+  --condition-critical: oklch(0.577 0.245 27.325);
+}
+
+/* Zinc-950 page, zinc-900 surfaces. The accent shifts to a lighter teal with dark text
+   on primary buttons, which keeps contrast above 4.5:1 where white-on-teal would not. */
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.183 0.006 285.79);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.704 0.14 182.503);
+  --primary-foreground: oklch(0.141 0.005 285.823);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.704 0.14 182.503);
+  --chart-1: oklch(0.704 0.14 182.503);
+  --chart-2: oklch(0.705 0.015 286.067);
+  --chart-3: oklch(0.552 0.016 285.938);
+  --chart-4: oklch(0.442 0.017 285.786);
+  --chart-5: oklch(0.37 0.013 285.805);
+  --sidebar: oklch(0.163 0.005 285.8);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.704 0.14 182.503);
+  --sidebar-primary-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.704 0.14 182.503);
+
+  --condition-stable: oklch(0.765 0.177 163.223);
+  --condition-recovering: oklch(0.707 0.165 254.624);
+  --condition-under-observation: oklch(0.828 0.189 84.429);
+  --condition-critical: oklch(0.704 0.191 22.216);
 }
 
 @layer base {
@@ -94,8 +146,9 @@
   html {
     @apply font-sans;
   }
+  /* Tabular figures everywhere, so numbers line up in stats, tables and pagination. */
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground tabular-nums antialiased;
   }
   button:not(:disabled),
   [role='button']:not(:disabled) {

@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={cn(geistSans.variable, geistMono.variable)}>
+    // next-themes sets the theme class before hydration, so React would flag the mismatch.
+    <html lang="en" className={cn(geistSans.variable, geistMono.variable)} suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
       </body>
