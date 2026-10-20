@@ -24,7 +24,10 @@ RUN pnpm turbo run build --filter=web
 
 # The standalone output carries its own trimmed node_modules; no install needed.
 FROM node:24-alpine AS runner
-ENV NODE_ENV=production \
+# Also read at request time, when the login page asks the API which providers exist.
+ARG API_URL=http://api:4000
+ENV API_URL=$API_URL \
+    NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0
