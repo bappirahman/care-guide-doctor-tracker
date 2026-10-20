@@ -8,8 +8,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "seed": "turbo run seed --filter=api",
-    "format": "prettier --write apps packages \"*.{json,md,yml,yaml}\"",
-    "format:check": "prettier --check apps packages \"*.{json,md,yml,yaml}\""
+    "format": "prettier --write apps packages .github \"*.{json,md,yml,yaml}\"",
+    "format:check": "prettier --check apps packages .github \"*.{json,md,yml,yaml}\""
   },
   "devDependencies": {
     "@doctor-tracker/config": "workspace:*",
