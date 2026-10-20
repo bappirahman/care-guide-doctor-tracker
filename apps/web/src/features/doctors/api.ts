@@ -40,8 +40,9 @@ export function useDoctorFilters() {
   });
 }
 
-export function useDoctor(id: string) {
+export function useDoctor(id: string, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
+    enabled,
     queryKey: doctorKeys.detail(id),
     queryFn: () =>
       apiFetch<ItemResponse<DoctorDetail>>(`/doctors/${id}`).then((response) => response.data),
