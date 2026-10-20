@@ -1,4 +1,8 @@
-import { doctorListQuerySchema, patientListQuerySchema } from '@doctor-tracker/shared';
+import {
+  doctorListQuerySchema,
+  patientListQuerySchema,
+  statsQuerySchema,
+} from '@doctor-tracker/shared';
 import mongoose, { type Types } from 'mongoose';
 import { env } from '../config/env.js';
 import { logger } from '../lib/logger.js';
@@ -6,6 +10,7 @@ import { DoctorModel } from '../modules/doctors/model.js';
 import { doctorListQuery, patientCountPipeline } from '../modules/doctors/service.js';
 import { PatientModel } from '../modules/patients/model.js';
 import { patientListQuery } from '../modules/patients/service.js';
+import { overviewPipeline, resolveRange } from '../modules/stats/service.js';
 
 /**
  * Runs the API's real list/search/filter queries with explain('executionStats')
@@ -18,6 +23,8 @@ type Check = {
   explain: () => Promise<unknown>;
   // A documented exception: why an in-memory SORT is acceptable for this query.
   sortAllowed?: string;
+  // Must be answered from the index alone: any fetched document is a failure.
+  covered?: boolean;
 };
 
 const PAGE_SIZE = 20;
@@ -50,6 +57,14 @@ async function busiestDoctorId() {
     { $limit: 1 },
   ]);
   return row?._id.toString();
+}
+
+async function explainOverview(raw: Record<string, unknown>) {
+  const query = statsQuerySchema.parse(raw);
+  const output: unknown = await PatientModel.aggregate(
+    overviewPipeline(resolveRange(query), query.top),
+  ).explain('executionStats');
+  return output;
 }
 
 const checks: Check[] = [
@@ -121,6 +136,16 @@ const checks: Check[] = [
   },
   { name: 'patients: unassigned', explain: () => explainPatientList({ doctorId: 'unassigned' }) },
   {
+    name: 'dashboard: overview, last 90 days',
+    explain: () => explainOverview({}),
+    covered: true,
+  },
+  {
+    name: 'dashboard: overview, last 12 months',
+    explain: () => explainOverview({ from: new Date(Date.now() - 365 * 86_400_000).toISOString() }),
+    covered: true,
+  },
+  {
     name: 'patients: admitted in the last 30 days',
     explain: () =>
       explainPatientList({ from: new Date(Date.now() - 30 * 86_400_000).toISOString() }),
@@ -177,7 +202,9 @@ async function main() {
 
       const scans = stages.some((stage) => stage.includes('COLLSCAN'));
       const sorts = stages.includes('SORT');
-      const ok = !scans && (!sorts || check.sortAllowed !== undefined);
+      const fetched = (stats.totalDocsExamined ?? 0) > 0;
+      const ok =
+        !scans && (!sorts || check.sortAllowed !== undefined) && !(check.covered && fetched);
       failed ||= !ok;
 
       rows.push([
@@ -187,7 +214,7 @@ async function main() {
         String(stats.totalKeysExamined ?? '-'),
         String(stats.totalDocsExamined ?? '-'),
         String(stats.nReturned ?? '-'),
-        sorts && check.sortAllowed ? check.sortAllowed : '',
+        sorts && check.sortAllowed ? check.sortAllowed : check.covered ? 'must be covered' : '',
       ]);
     }
   } finally {
@@ -208,7 +235,9 @@ async function main() {
   process.stdout.write(`${lines.join('\n')}\n`);
 
   if (failed) {
-    process.stdout.write('\nA query above scans the collection or sorts in memory.\n');
+    process.stdout.write(
+      '\nA query above scans the collection, sorts in memory, or fetches documents it should not.\n',
+    );
     process.exitCode = 1;
   }
 }
