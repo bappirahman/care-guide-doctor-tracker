@@ -12,6 +12,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { statsKeys } from '@/features/dashboard/api';
 import { doctorKeys } from '@/features/doctors/api';
 import { apiFetch } from '@/lib/api-client';
 import { dayRangeToInstants } from '@/lib/dates';
@@ -40,8 +41,8 @@ export function usePatients(params: PatientListParams) {
 }
 
 /**
- * Patient writes change doctor patient counts and condition breakdowns too, so both
- * families are invalidated. (Dashboard stats join this list in phase 5.)
+ * Patient writes also change doctor patient counts, condition breakdowns and every
+ * dashboard number, so all three families are invalidated.
  */
 function useInvalidateAfterPatientWrite() {
   const queryClient = useQueryClient();
@@ -49,6 +50,7 @@ function useInvalidateAfterPatientWrite() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: patientKeys.all }),
       queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
+      queryClient.invalidateQueries({ queryKey: statsKeys.all }),
     ]);
 }
 

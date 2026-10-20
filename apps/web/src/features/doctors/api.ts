@@ -8,6 +8,7 @@ import type {
   ListResponse,
 } from '@doctor-tracker/shared';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { statsKeys } from '@/features/dashboard/api';
 import { apiFetch } from '@/lib/api-client';
 import { dayRangeToInstants } from '@/lib/dates';
 import type { DoctorListParams } from './search-params';
@@ -49,11 +50,15 @@ export function useDoctor(id: string, { enabled = true }: { enabled?: boolean } 
   });
 }
 
-// Any write can change list membership, counts and the filter options, so all
-// doctor queries are invalidated rather than patched by hand.
+// Any write can change list membership, counts, filter options and the dashboard's
+// doctor totals, so those queries are invalidated rather than patched by hand.
 function useInvalidateDoctors() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: doctorKeys.all });
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
+      queryClient.invalidateQueries({ queryKey: statsKeys.all }),
+    ]);
 }
 
 export function useCreateDoctor() {
@@ -80,7 +85,10 @@ export function useDeleteDoctor() {
     mutationFn: (id: string) => apiFetch<void>(`/doctors/${id}`, { method: 'DELETE' }),
     onSuccess: (_data, id) => {
       queryClient.removeQueries({ queryKey: doctorKeys.detail(id) });
-      return queryClient.invalidateQueries({ queryKey: doctorKeys.all });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
+        queryClient.invalidateQueries({ queryKey: statsKeys.all }),
+      ]);
     },
   });
 }
