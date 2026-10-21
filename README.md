@@ -81,6 +81,10 @@ Other root scripts all run through Turborepo:
 pnpm build | pnpm lint | pnpm typecheck | pnpm test | pnpm format:check
 pnpm --filter api explain                   # query-plan check, see "Indexing" below
 pnpm --filter web screenshots               # recaptures docs/screenshots from a running app
+pnpm seed:admin -- --email ops@example.com --name "Ops Admin" --password '...'
+                                            # admin only; flags override SEED_ADMIN_*, add --reset-password for an existing user
+pnpm clean                                  # plain Node, not Turbo: removes node_modules, dist, .next, .turbo and caches
+pnpm clean:build                            # same, but keeps node_modules
 ```
 
 `pnpm test` runs the API integration tests against an in-memory MongoDB (`mongodb-memory-server`), so it needs no running database.

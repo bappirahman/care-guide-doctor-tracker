@@ -9,8 +9,10 @@
     "test": "turbo run test",
     "seed": "turbo run seed --filter=api",
     "seed:admin": "turbo run seed:admin --filter=api",
-    "format": "prettier --write apps packages .github \"*.{json,md,yml,yaml}\"",
-    "format:check": "prettier --check apps packages .github \"*.{json,md,yml,yaml}\""
+    "format": "prettier --write apps packages scripts .github \"*.{json,md,yml,yaml}\"",
+    "format:check": "prettier --check apps packages scripts .github \"*.{json,md,yml,yaml}\"",
+    "clean": "node scripts/clean.mjs",
+    "clean:build": "node scripts/clean.mjs --keep-deps"
   },
   "devDependencies": {
     "@doctor-tracker/config": "workspace:*",
