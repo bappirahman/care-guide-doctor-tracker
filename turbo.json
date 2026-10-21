@@ -27,6 +27,11 @@
       "dependsOn": ["^build"],
       "cache": false,
       "passThroughEnv": ["*"]
+    },
+    "seed:admin": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "passThroughEnv": ["*"]
     }
   }
 }

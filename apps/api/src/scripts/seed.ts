@@ -4,7 +4,6 @@ import {
   SPECIALIZATIONS,
   type Specialization,
 } from '@doctor-tracker/shared';
-import argon2 from 'argon2';
 import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { logger } from '../lib/logger.js';
@@ -12,6 +11,7 @@ import { SessionModel } from '../modules/auth/model.js';
 import { DoctorModel } from '../modules/doctors/model.js';
 import { PatientModel } from '../modules/patients/model.js';
 import { UserModel } from '../modules/users/model.js';
+import { ensureAdmin } from './admin.js';
 import { HOSPITALS, MOBILE_PREFIXES, NAME_POOLS, SPECIALIZATION_PROFILES } from './seed-data.js';
 
 const DOCTOR_COUNT = 50;
@@ -182,21 +182,6 @@ function buildPatients(now: number, doctors: ReturnType<typeof buildDoctors>) {
   });
 }
 
-async function ensureAdmin() {
-  const email = env.SEED_ADMIN_EMAIL.toLowerCase();
-  if (await UserModel.exists({ email })) {
-    logger.info({ email }, 'Admin user already exists');
-    return;
-  }
-  await UserModel.create({
-    name: env.SEED_ADMIN_NAME,
-    email,
-    passwordHash: await argon2.hash(env.SEED_ADMIN_PASSWORD),
-    role: 'admin',
-  });
-  logger.info({ email }, 'Created admin user');
-}
-
 async function seed() {
   const reset = process.argv.includes('--reset');
   // Indexes are built explicitly below, so skip Mongoose's background autoIndex.
@@ -210,7 +195,11 @@ async function seed() {
     await Promise.all(
       [UserModel, SessionModel, DoctorModel, PatientModel].map((model) => model.syncIndexes()),
     );
-    await ensureAdmin();
+    await ensureAdmin({
+      name: env.SEED_ADMIN_NAME,
+      email: env.SEED_ADMIN_EMAIL,
+      password: env.SEED_ADMIN_PASSWORD,
+    });
 
     if (await DoctorModel.exists({})) {
       logger.info('Doctors already present, skipping. Run with --reset to reseed.');

@@ -49,6 +49,13 @@ The seed is idempotent. It skips if doctors already exist, so restarting the sta
 docker compose run --rm seed node dist/scripts/seed.js --reset
 ```
 
+To add another admin, or reset an admin's password, without touching doctors or patients:
+
+```bash
+docker compose run --rm seed node dist/scripts/seed-admin.js --email ops@example.com --name "Ops Admin" --password 'Choose#AStrong1'
+docker compose run --rm seed node dist/scripts/seed-admin.js --email admin@example.com --password 'New#Password1' --reset-password
+```
+
 To check the query plans against the running database (see [Indexing](#2-indexing-and-aggregation-verified-with-explain)):
 
 ```bash

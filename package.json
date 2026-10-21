@@ -8,6 +8,7 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "seed": "turbo run seed --filter=api",
+    "seed:admin": "turbo run seed:admin --filter=api",
     "format": "prettier --write apps packages .github \"*.{json,md,yml,yaml}\"",
     "format:check": "prettier --check apps packages .github \"*.{json,md,yml,yaml}\""
   },
