@@ -86,6 +86,7 @@ pnpm seed:admin -- --email ops@example.com --name "Ops Admin" --password '...'
 pnpm db:reset                               # drops the database in MONGO_URI, then seeds admin, doctors and patients
 pnpm clean                                  # plain Node, not Turbo: removes node_modules, dist, .next, .turbo and caches
 pnpm clean:build                            # same, but keeps node_modules
+pnpm fresh                                  # clean, then reinstall from the lockfile and rebuild everything
 ```
 
 `pnpm test` runs the API integration tests against an in-memory MongoDB (`mongodb-memory-server`), so it needs no running database.

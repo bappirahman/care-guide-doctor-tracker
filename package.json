@@ -13,7 +13,8 @@
     "format": "prettier --write apps packages scripts .github \"*.{json,md,yml,yaml}\"",
     "format:check": "prettier --check apps packages scripts .github \"*.{json,md,yml,yaml}\"",
     "clean": "node scripts/clean.mjs",
-    "clean:build": "node scripts/clean.mjs --keep-deps"
+    "clean:build": "node scripts/clean.mjs --keep-deps",
+    "fresh": "node scripts/clean.mjs && pnpm install --frozen-lockfile && pnpm build"
   },
   "devDependencies": {
     "@doctor-tracker/config": "workspace:*",
