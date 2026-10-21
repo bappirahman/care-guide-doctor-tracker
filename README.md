@@ -71,7 +71,7 @@ docker compose up -d mongo
 cp apps/api/.env.example apps/api/.env      # set JWT_ACCESS_SECRET to 32+ random characters
 cp apps/web/.env.example apps/web/.env
 pnpm install
-pnpm seed                                   # pnpm --filter api seed --reset to wipe and reseed
+pnpm seed                                   # pnpm db:reset to wipe and reseed
 pnpm dev                                    # web on :3000, api on :4000, shared rebuilds on change
 ```
 
@@ -83,6 +83,7 @@ pnpm --filter api explain                   # query-plan check, see "Indexing" b
 pnpm --filter web screenshots               # recaptures docs/screenshots from a running app
 pnpm seed:admin -- --email ops@example.com --name "Ops Admin" --password '...'
                                             # admin only; flags override SEED_ADMIN_*, add --reset-password for an existing user
+pnpm db:reset                               # drops the database in MONGO_URI, then seeds admin, doctors and patients
 pnpm clean                                  # plain Node, not Turbo: removes node_modules, dist, .next, .turbo and caches
 pnpm clean:build                            # same, but keeps node_modules
 ```

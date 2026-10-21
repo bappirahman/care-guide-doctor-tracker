@@ -12,6 +12,7 @@
     "start": "node dist/server.js",
     "seed": "tsx --env-file-if-exists=.env src/scripts/seed.ts",
     "seed:admin": "tsx --env-file-if-exists=.env src/scripts/seed-admin.ts",
+    "db:reset": "tsx --env-file-if-exists=.env src/scripts/seed.ts --reset",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "explain": "tsx --env-file-if-exists=.env src/scripts/explain.ts",

@@ -190,7 +190,7 @@ async function seed() {
   try {
     if (reset) {
       await mongoose.connection.dropDatabase();
-      logger.info('Dropped database');
+      logger.info({ database: mongoose.connection.name }, 'Dropped database');
     }
     await Promise.all(
       [UserModel, SessionModel, DoctorModel, PatientModel].map((model) => model.syncIndexes()),

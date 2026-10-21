@@ -9,6 +9,7 @@
     "test": "turbo run test",
     "seed": "turbo run seed --filter=api",
     "seed:admin": "turbo run seed:admin --filter=api",
+    "db:reset": "turbo run seed --filter=api -- --reset",
     "format": "prettier --write apps packages scripts .github \"*.{json,md,yml,yaml}\"",
     "format:check": "prettier --check apps packages scripts .github \"*.{json,md,yml,yaml}\"",
     "clean": "node scripts/clean.mjs",
