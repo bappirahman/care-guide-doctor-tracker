@@ -13,7 +13,7 @@ export function StatCards({ stats, periodLabel }: StatCardsProps) {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-      <StatCard label="Total doctors" value={totals.doctors} footnote="On staff today" />
+      <StatCard label="Total doctors" value={totals.doctors} footnote="Registered doctors" />
       <StatCard label="Total patients" value={totals.patients} footnote="All time" />
       <StatCard
         label="New patients"
