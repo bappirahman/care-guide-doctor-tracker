@@ -93,6 +93,8 @@ pnpm fresh                                  # clean, then reinstall from the loc
 
 `pnpm test` runs the API integration tests against an in-memory MongoDB (`mongodb-memory-server`), so it needs no running database.
 
+`pnpm install` also sets up git hooks with Husky. Before each commit, `lint-staged` runs Prettier and the owning package's ESLint on the staged files. The commit message must follow [Conventional Commits](https://www.conventionalcommits.org) (`feat(api): ...`, `fix(web): ...`), which `commitlint` checks.
+
 ### Optional: Google sign-in
 
 The "Continue with Google" button only appears when the API has Google credentials. Without them, everything else works.

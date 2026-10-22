@@ -2,6 +2,7 @@
   "name": "doctor-tracker",
   "private": true,
   "scripts": {
+    "prepare": "husky",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
@@ -17,7 +18,11 @@
     "fresh": "node scripts/clean.mjs && pnpm install --frozen-lockfile && pnpm build"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@doctor-tracker/config": "workspace:*",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "prettier": "3.9.6",
     "turbo": "^2.11.9",
     "typescript": "~6.0.3"
