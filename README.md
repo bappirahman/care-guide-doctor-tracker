@@ -112,6 +112,30 @@ Who can sign in with Google:
 
 Any other Google account sees a "not authorized" screen.
 
+### Deploying to Vercel
+
+Both apps deploy as separate Vercel projects from this repo. Express runs as one Vercel Function, so nothing is containerised. Each app's `vercel.json` sets the install and build commands, which also build `packages/shared` first.
+
+1. **MongoDB Atlas.** Under Network Access, allow `0.0.0.0/0`, because Vercel's outbound IPs aren't fixed. Name the database in the URI, for example `...mongodb.net/doctor-tracker?retryWrites=true&w=majority`.
+2. **API project.** Import the repo with Root Directory `apps/api`. Set these environment variables:
+   ```
+   ENABLE_EXPERIMENTAL_COREPACK=1      # so Vercel uses the pinned pnpm 11
+   NODE_ENV=production                 # turns on Secure cookies
+   MONGO_URI=mongodb+srv://...
+   JWT_ACCESS_SECRET=<32+ random characters>
+   WEB_ORIGIN=https://<web-project>.vercel.app
+   ```
+3. **Web project.** Import the same repo with Root Directory `apps/web`. Set:
+   ```
+   ENABLE_EXPERIMENTAL_COREPACK=1
+   API_URL=https://<api-project>.vercel.app
+   ```
+   `API_URL` is read at build time, so redeploy the web project after changing it.
+4. **Seed once** from your machine, with `MONGO_URI` in `apps/api/.env` pointing at Atlas: `pnpm seed`.
+5. **Google sign-in (optional).** Add the Google variables to the API project, and add `https://<web-project>.vercel.app/api/v1/auth/google/callback` as a redirect URI in Google Cloud.
+
+Browsers only ever talk to the web project. It proxies `/api/*` to the API project, so cookies stay first-party exactly as they do locally.
+
 ## System architecture
 
 ```mermaid
