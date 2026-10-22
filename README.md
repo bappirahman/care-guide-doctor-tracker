@@ -8,7 +8,9 @@ Doctor Tracker is an internal admin portal for a group of Dhaka hospitals. An ad
 
 It's two separate applications, a Next.js web client and an Express REST API, sharing one set of Zod schemas in a Turborepo monorepo, backed by MongoDB. The seed data is 50 doctors and 5,000 patients over twelve months, so search, pagination, indexes and charts all have real volume to work against.
 
-**Demo login:** `admin@example.com` / `DemoAdmin#2026`
+**Live:** [doctortracker.boringdocs.dev](https://doctortracker.boringdocs.dev) · API at [api.doctortracker.boringdocs.dev](https://api.doctortracker.boringdocs.dev/health)
+
+**Demo login:** `admin@example.com` / `DemoAdmin#2026`. Google sign-in on the live site only accepts approved addresses.
 
 ## Contents
 
